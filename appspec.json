@@ -1,0 +1,80 @@
+{
+  "settings": [
+	{
+      "id": "search_radius",
+      "name": "Radius for cluster search",
+      "description": "Define the radius (in meter) for searching for GPS locations and cluster formation.",
+      "defaultValue": 100,
+      "type": "DOUBLE"
+    },
+	{
+      "id": "window_days",
+      "name": "Time window used for cluster formation",
+      "description": "Provide the maximum time duration (in days) that animals spend at a cluster. Defaults to 3 (days).",
+      "defaultValue": 3,
+      "type": "DOUBLE"
+    },
+   {
+      "id": "clus_min_locs",
+      "name": "Minimum location used for clustering",
+      "description": "Minimum lcoation to be used to differentiate between cluster and non-clusters (Den sites, resting lcoations). A higher minimum location for cluster ensures the animal has came back and spend some time in the cluster radius within the number of window days provided.",
+      "defaultValue": 5,
+      "type": "DOUBLE"
+    } 
+    ],
+    
+  "dependencies": {
+    "R": [
+      {
+        "name": "plyr"
+      },
+	  {
+        "name": "geosphere"
+      },
+      {
+        "name": "tcltk"
+      },
+	  {
+        "name": "utils"
+      },
+	  {
+        "name": "suncalc"
+      },
+	  {
+        "name": "purrr"
+      }
+    ]
+  },
+  "createsArtifacts": true,
+  "license": {
+    "key": "MIT"
+  },
+  "language": "eng",
+  "keywords": [
+    "Kill cluster",
+    "predation cluster",
+    "spatio-temporal",
+	  "animal movement"
+  ],
+  "people": [
+    {
+      "firstName": "Nilanjan",
+      "middleInitials": null,
+      "lastName": "Chatterjee",
+      "email": "nchatter@umn.edu",
+      "roles": ["author", "creator"],
+      "orcid": "0000-0002-7932-0191",
+      "affiliation": "University of Minnesota",
+      "affiliationRor": ""
+    }
+		
+  ],
+  "funding": [
+    {
+	"name": "NASA MoveApps Project"
+	}
+  ],
+  "documentation" : {
+    "url": "https://github.com/nilanjanchatterjee/Pred_cluster/blob/main/README.md"
+  }
+}
