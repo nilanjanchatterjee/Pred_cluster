@@ -1,13 +1,10 @@
-#' @title Sequential cluster algorithm of location data
-#'
-#' @param search_radius_m Search radius (meters) from cluster centroid when building clusters.
-#' @param window_days Temporal window (days) to search for new locations from the most recent location in a cluster
-#' @param clus_min_locs Minimum number of locations required to form a cluster. Default is 2.
-#' @param centroid_calc Method for recalculating centroids when actively building clusters - e.g., "median" or "mean" (default). Not to be confused with
-#'                      plotting the "mean" or "median" centroid once a cluster has been built.
-#' @param daylight_hrs Manually set start and stop hours (0-24) to classify day and night locations. - e.g. c(6,18) would classify 6AM - 6PM as daylight hrs.
-#'                     NA (default) uses 'suncalc' package to convert cluster location and time to be classified based on specific specific sunrise and sunset times.
-#'
+library(utils)
+library(geosphere)
+library(suncalc)
+library(purrr)
+library(plyr)
+library(tcltk)
+
 #' \describe{
 #'   \item{individual.local.identifier}{Animal identification}
 #'   \item{clus_ID}{Sequential cluster ID number}
@@ -31,20 +28,9 @@
 #'   \item{clus_radius}{Maximum location distance (meters) from centroid during cluster duration for cluster-attributed locations}
 #'   \item{avg_clus_dist}{Mean distance from all cluster locations to centroid}
 #'   \item{night_pts}{Number of night cluster locations based on 'daylight_hrs' argument}
-#'   \item{night_prop}{Proportion of night cluster locations}
-#' }
-#'
-#' @import sp
-#' @importFrom geosphere distHaversine distm
-#' @importFrom suncalc getSunlightTimes
-#' @importFrom stats median
-#' @import plyr
-#' @importFrom purrr keep walk
-#' @importFrom tcltk setTkProgressBar tkProgressBar
-#' @importFrom utils globalVariables setTxtProgressBar txtProgressBar
-#'
-#' @export
-#'
+#   \item{night_prop}{Proportion of night cluster locations}
+# }
+
 ######################################################################################
 
 rFunction <-function(dat, search_radius, window_days, clus_min_locs=2, centroid_calc="mean",daylight_hrs=NA ){
