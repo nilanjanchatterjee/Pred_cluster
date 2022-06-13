@@ -47,11 +47,11 @@
 #'
 ######################################################################################
 
-RFunction <-function(dat, search_radius, window_days, clus_min_locs=2, centroid_calc="mean",daylight_hrs=NA ){
+rFunction <-function(dat, search_radius, window_days, clus_min_locs=2, centroid_calc="mean",daylight_hrs=NA ){
   
   dat <-as.data.frame(dat)
   
-  if(("individual.local.identifier" %in% colnames(dat))==FALSE){stop("No 'individual.local.identifier' column found.")}
+  if(("tag_local_identifier" %in% colnames(dat))==FALSE){stop("No 'local_identifier' column found.")}
   
   if(inherits(dat$timestamp, 'POSIXct')==FALSE){stop("'timestamp' must be POSIXct.")}
   #ensure arguments are valid below
@@ -80,16 +80,16 @@ RFunction <-function(dat, search_radius, window_days, clus_min_locs=2, centroid_
     x
   }
   
-  dat<-dat[order(dat$individual.local.identifier,dat$timestamp),]     #make sure we have this line active in final function, hashed for testing
+  dat<-dat[order(dat$tag_local_identifier,dat$timestamp),]     #make sure we have this line active in final function, hashed for testing
   #set up location data output with cluster number attribute
   dat2<-dat[1,]
   dat2$clus_ID<-NA
   dat2<-dat2[-1,]
-  uni_individual.local.identifier<-as.character(unique(dat$individual.local.identifier))            #loop through individual.local.identifiers
+  uni_individual.local.identifier<-as.character(unique(dat$tag_local_identifier))            #loop through individual.local.identifiers
   message("TOTAL PROGRESS")
   pb <- utils::txtProgressBar(min=0, max=length(uni_individual.local.identifier), style=3)   #initiate base progress bar
   for(zz in 1:length(uni_individual.local.identifier)) {                        #start loop
-    out_all<-subset(dat, individual.local.identifier == uni_individual.local.identifier[zz])                                    #get rows per individual.local.identifier
+    out_all<-subset(dat, tag_local_identifier == uni_individual.local.identifier[zz])                                    #get rows per individual.local.identifier
     if(length(which(is.na(out_all$location_lat)))==0){warning(paste(uni_individual.local.identifier[zz], "shows no missed locations. Ensure 'failed' fix attempts are included for accurate cluster attributes."))}
     #subset successful fixes for algorithm
     out<-out_all[which(!is.na(out_all$location_lat)),]                                   #subset only usable locations
@@ -231,8 +231,8 @@ RFunction <-function(dat, search_radius, window_days, clus_min_locs=2, centroid_
         #relabel and clean up columns
         names(clus_summary)[names(clus_summary) == "clus_ID3"]<- "clus_ID"
         names(out_all)[names(out_all) == "clus_ID3"]<- "clus_ID"
-        clus_summary$individual.local.identifier<-out_all$individual.local.identifier[1]
-        clus_summary<-moveMe(clus_summary, "individual.local.identifier", "first")
+        clus_summary$tag_local_identifier<-out_all$tag_local_identifier[1]
+        clus_summary<-moveMe(clus_summary, "tag_local_identifier", "first")
         
         #############fin with cluster identification###################################
         ###################Build Cluster Attributes for modeling######################
