@@ -33,7 +33,7 @@ library(tcltk)
 
 ######################################################################################
 
-rFunction <-function(dat, search_radius, window_days, clus_min_locs=2, centroid_calc="mean",daylight_hrs=NA ){
+rFunction <-function(dat, search_radius, window_days, clus_min_locs, centroid_calc="mean",daylight_hrs=NA ){
   
   dat <-as.data.frame(dat)
   
@@ -317,11 +317,18 @@ rFunction <-function(dat, search_radius, window_days, clus_min_locs=2, centroid_
   }
   close(pb)                                          #when finished close the base progress bar
   dat<-dat2  #write the updated location output back to dat
+  names(dat) <- make.names(names(dat2),allow_=FALSE)
+  ###Converting the data.frame output into move-stack object
+  data_move <- move(x=dat$location.long, y=dat$location.lat,
+                    time=as.POSIXct(dat$timestamp,format="%Y-%m-%d %H:%M:%S"),
+                    data=dat, proj=CRS("+proj=longlat +ellps=WGS84"),
+                    animal=dat$tag.local.identifier)
   rm(dat2)
   clus_summary<-t_summ  #write the cluster summary info back to clus_summary
   rm(pb, zz, uni_individual.local.identifier, out_all, t_summ)
-  write.csv(clus_summary, file= "Cluster_summary_output.csv")
-  return(list(dat, clus_summary))
+  write.csv(clus_summary, file= paste0(Sys.getenv(x = "APP_ARTIFACTS_DIR", "/tmp/"), "Cluster_summary_output.csv"),row.names=FALSE)
+  #write.csv(data_move, file= "Cluster_all_output.csv")
+  return(data_move)
 }
 
 
