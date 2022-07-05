@@ -3,7 +3,7 @@
 	{
       "id": "search_radius",
       "name": "Radius for cluster search",
-      "description": "Define the radius (in meter) for searching for GPS locations and cluster formation.",
+      "description": "Define the radius (in meter) for searching for GPS locations and cluster formation. Defaults to 100 (meters).",
       "defaultValue": 100,
       "type": "DOUBLE"
     },
