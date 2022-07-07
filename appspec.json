@@ -42,7 +42,10 @@
       },
 	  {
         "name": "purrr"
-      }
+      },
+	{
+        "name": "move"
+      }    
     ]
   },
   "createsArtifacts": true,
