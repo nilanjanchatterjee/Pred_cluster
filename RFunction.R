@@ -4,6 +4,7 @@ library(suncalc)
 library(purrr)
 library(plyr)
 library(tcltk)
+library(move)
 
 #' \describe{
 #'   \item{individual.local.identifier}{Animal identification}
@@ -33,9 +34,9 @@ library(tcltk)
 
 ######################################################################################
 
-rFunction <-function(dat, search_radius, window_days, clus_min_locs, centroid_calc="mean",daylight_hrs=NA ){
+rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_calc="mean",daylight_hrs=NA ){
   
-  dat <-as.data.frame(dat)
+  dat <-as.data.frame(data)
   
   if(("tag_local_identifier" %in% colnames(dat))==FALSE){stop("No 'local_identifier' column found.")}
   
