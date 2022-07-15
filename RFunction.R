@@ -324,12 +324,13 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
                     time=as.POSIXct(dat$timestamp,format="%Y-%m-%d %H:%M:%S"),
                     data=dat, proj=CRS("+proj=longlat +ellps=WGS84"),
                     animal=dat$tag.local.identifier)
+  data_movestack <- moveStack(data_move,forceTz="UTC")
   rm(dat2)
   clus_summary<-t_summ  #write the cluster summary info back to clus_summary
   rm(pb, zz, uni_individual.local.identifier, out_all, t_summ)
   write.csv(clus_summary, file= paste0(Sys.getenv(x = "APP_ARTIFACTS_DIR", "/tmp/"), "Cluster_summary_output.csv"),row.names=FALSE)
   #write.csv(data_move, file= "Cluster_all_output.csv")
-  return(data_move)
+  return(data_movestack)
 }
 
 
