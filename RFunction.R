@@ -1,4 +1,3 @@
-library(utils)
 library(geosphere)
 library(suncalc)
 library(purrr)
