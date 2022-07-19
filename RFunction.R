@@ -3,7 +3,6 @@ library(geosphere)
 library(suncalc)
 library(purrr)
 library(plyr)
-library(tcltk)
 library(move)
 
 #' \describe{
@@ -73,8 +72,8 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
   dat2$clus_ID<-NA
   dat2<-dat2[-1,]
   uni_individual.local.identifier<-as.character(unique(dat$tag_local_identifier))            #loop through individual.local.identifiers
-  message("TOTAL PROGRESS")
-  pb <- utils::txtProgressBar(min=0, max=length(uni_individual.local.identifier), style=3)   #initiate base progress bar
+  #message("TOTAL PROGRESS")
+  #pb <- utils::txtProgressBar(min=0, max=length(uni_individual.local.identifier), style=3)   #initiate base progress bar
   for(zz in 1:length(uni_individual.local.identifier)) {                        #start loop
     out_all<-subset(dat, tag_local_identifier == uni_individual.local.identifier[zz])                                    #get rows per individual.local.identifier
     if(length(which(is.na(out_all$location_lat)))==0){warning(paste(uni_individual.local.identifier[zz], "shows no missed locations. Ensure 'failed' fix attempts are included for accurate cluster attributes."))}
@@ -91,7 +90,7 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
       out<-moveMe(out, "index", "first")
       #first internal loop with windows progress bar and label by animal and process
       c<-1                                                                    #seed ticker for sequential cluster numbers
-      pb2 <- tcltk::tkProgressBar(min = 0, max = nrow(out), width = 500)
+      #pb2 <- tcltk::tkProgressBar(min = 0, max = nrow(out), width = 500)
       for(j in 1:nrow(out)){                                                  #for each sequential location
         if(out$ClusID[j] == 0){                                              #IF THE LOCATION HAS NOT BEEN ASSIGNED A CLUSTER
           cent<-c(out[j,"location_long"], out[j,"location_lat"])                                   #LL reference point location as cluster centroid
@@ -161,10 +160,10 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
             }
           }
         }
-        tcltk::setTkProgressBar(pb2, j, title=paste("Animal", uni_individual.local.identifier[zz], "...building clusters...", round(j/nrow(out)*100, 0), "% completed"))                                                        #update progress bar
+        #tcltk::setTkProgressBar(pb2, j, title=paste("Animal", uni_individual.local.identifier[zz], "...building clusters...", round(j/nrow(out)*100, 0), "% completed"))                                                        #update progress bar
       }
-      close(pb2)
-      rm(pb2,b,c,m,j,t,AR_Clus,cent)
+      #close(pb2)
+      rm(b,c,m,j,t,AR_Clus,cent)
       
       ###################fin primary cluster algorithm
       see<-rle(out$ClusID)                                          #run the rle function, to get bouts of identical values (cluster IDs)
@@ -247,7 +246,7 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
         clus_summary$night_prop<-NA             # number night locs (1800-0600)/total cluster locs (night=0, day=1)
         #if(!is.na(season_breaks_jul[1])){clus_summary$season<-0}  #if the season argument exists, set all to reference season == 0 before loop
         #loop to calculate attributes
-        pb3 <- tcltk::tkProgressBar(min = 0, max = nrow(clus_summary), width = 500)
+        #pb3 <- tcltk::tkProgressBar(min = 0, max = nrow(clus_summary), width = 500)
         for(i in 1:nrow(clus_summary)){
           ggg<-out_all[which(out_all$timestamp >= clus_summary$clus_start[i] & out_all$timestamp <= clus_summary$clus_end[i]),] #subset cluster fix attempts
           #clus_summary$fix_succ_clus_dur[i]<-round(nrow(ggg[which(!is.na(ggg$location_lat)),])/nrow(ggg),2)                              #prop fix success during cluster duration
@@ -289,10 +288,10 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
             clus_summary$night_prop[i]<-round(clus_summary$night_pts[i] / clus_summary$n_clus_locs[i],2)
             rm(dd, ttt)
           }
-          tcltk::setTkProgressBar(pb3, i, title=paste("Animal",uni_individual.local.identifier[zz], "...building cluster covariates...", round(i/nrow(clus_summary)*100, 0), "% completed"))
+          #tcltk::setTkProgressBar(pb3, i, title=paste("Animal",uni_individual.local.identifier[zz], "...building cluster covariates...", round(i/nrow(clus_summary)*100, 0), "% completed"))
         }
-        close(pb3)
-        rm(pb3, ggg, fff, aa, i)
+        #close(pb3)
+        rm(ggg, fff, aa, i)
         ####END cluster prep####
       }
       
@@ -314,9 +313,9 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
       }
     }
     dat2<-rbind(dat2,out_all)   #append dat2 with out_all data
-    utils::setTxtProgressBar(pb, zz)                         #update the base progress bar % for each animal
+    #utils::setTxtProgressBar(pb, zz)                         #update the base progress bar % for each animal
   }
-  close(pb)                                          #when finished close the base progress bar
+  #close(pb)                                          #when finished close the base progress bar
   dat<-dat2  #write the updated location output back to dat
   names(dat) <- make.names(names(dat2),allow_=FALSE)
   ###Converting the data.frame output into move-stack object
@@ -327,7 +326,7 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
   data_movestack <- moveStack(data_move,forceTz="UTC")
   rm(dat2)
   clus_summary<-t_summ  #write the cluster summary info back to clus_summary
-  rm(pb, zz, uni_individual.local.identifier, out_all, t_summ)
+  rm(zz, uni_individual.local.identifier, out_all, t_summ)
   write.csv(clus_summary, file= paste0(Sys.getenv(x = "APP_ARTIFACTS_DIR", "/tmp/"), "Cluster_summary_output.csv"),row.names=FALSE)
   #write.csv(data_move, file= "Cluster_all_output.csv")
   return(data_movestack)
