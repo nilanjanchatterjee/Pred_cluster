@@ -3,7 +3,7 @@
 	{
       "id": "search_radius",
       "name": "Radius for cluster search",
-      "description": "Define the radius (in meter) for searching for GPS locations and cluster formation. Defaults to 100 (meters).",
+      "description": "Define the radius (in meter) for searching for GPS locations and cluster formation.",
       "defaultValue": 100,
       "type": "DOUBLE"
     },
@@ -31,15 +31,24 @@
 	  {
         "name": "geosphere"
       },
-       {
+      {
+        "name": "tcltk"
+      },
+	  {
+        "name": "utils"
+      },
+	  {
         "name": "suncalc"
       },
 	  {
         "name": "purrr"
       },
-	{
-        "name": "move"
-      }    
+    {
+        "name": "sf"
+      },
+    {
+        "name": "tmap"
+      }
     ]
   },
   "createsArtifacts": true,
