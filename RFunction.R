@@ -3,6 +3,9 @@ library(suncalc)
 library(purrr)
 library(plyr)
 library(move)
+library(sf)
+library(tmap)
+library(dplyr)
 
 #' \describe{
 #'   \item{individual.local.identifier}{Animal identification}
@@ -35,15 +38,8 @@ library(move)
 rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_calc="mean",daylight_hrs=NA ){
   
   dat <-as.data.frame(data)
+  names(dat) <- gsub("[.]", "_", names(dat))
   
-  if(("tag_local_identifier" %in% colnames(dat))==FALSE){stop("No 'local_identifier' column found.")}
-  
-  if(inherits(dat$timestamp, 'POSIXct')==FALSE){stop("'timestamp' must be POSIXct.")}
-  #ensure arguments are valid below
-  if(is.na(centroid_calc) | is.null(centroid_calc)){stop("'centroid_calc' argument must = 'median' or 'mean'")}
-  if((!is.na(centroid_calc) && !is.null(centroid_calc) && (centroid_calc == "mean" | centroid_calc == "median"))==FALSE){stop("'centroid_calc' argument must = 'median' or 'mean'")}
-  if(is.na(search_radius) | is.null(search_radius)){stop("invalid 'search_radius'")}
-  if((!is.na(search_radius) && !is.null(search_radius) && (search_radius>=0))==FALSE){warning("No clusters identified when 'search_radius_meter' <= 0.")}
   if(clus_min_locs<2){warning("Clusters must have at least 2 locations. 'clus_min_locs' argument < 2 returns default of 2.")}
   
   moveMe <- function(data, tomove, where = "last", ba = NULL) {
@@ -65,16 +61,15 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
     x
   }
   
-  dat<-dat[order(dat$tag_local_identifier,dat$timestamp),]     #make sure we have this line active in final function, hashed for testing
+  dat<-dat[order(dat$trackId,dat$timestamp),]     #make sure we have this line active in final function, hashed for testing
   #set up location data output with cluster number attribute
   dat2<-dat[1,]
   dat2$clus_ID<-NA
   dat2<-dat2[-1,]
-  uni_individual.local.identifier<-as.character(unique(dat$tag_local_identifier))            #loop through individual.local.identifiers
-  #message("TOTAL PROGRESS")
-  #pb <- utils::txtProgressBar(min=0, max=length(uni_individual.local.identifier), style=3)   #initiate base progress bar
-  for(zz in 1:length(uni_individual.local.identifier)) {                        #start loop
-    out_all<-subset(dat, tag_local_identifier == uni_individual.local.identifier[zz])                                    #get rows per individual.local.identifier
+  uni_individual.local.identifier<-as.character(unique(dat$trackId))            #loop through individual.local.identifiers
+  
+    for(zz in 1:length(uni_individual.local.identifier)) {                        #start loop
+    out_all<-subset(dat, trackId == uni_individual.local.identifier[zz])                                    #get rows per individual.local.identifier
     if(length(which(is.na(out_all$location_lat)))==0){warning(paste(uni_individual.local.identifier[zz], "shows no missed locations. Ensure 'failed' fix attempts are included for accurate cluster attributes."))}
     #subset successful fixes for algorithm
     out<-out_all[which(!is.na(out_all$location_lat)),]                                   #subset only usable locations
@@ -159,10 +154,9 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
             }
           }
         }
-        #tcltk::setTkProgressBar(pb2, j, title=paste("Animal", uni_individual.local.identifier[zz], "...building clusters...", round(j/nrow(out)*100, 0), "% completed"))                                                        #update progress bar
+        
       }
-      #close(pb2)
-      rm(b,c,m,j,t,AR_Clus,cent)
+      rm(b,c,m,j,t,AR_Clus,cent) ### remove objects from the clustering steps
       
       ###################fin primary cluster algorithm
       see<-rle(out$ClusID)                                          #run the rle function, to get bouts of identical values (cluster IDs)
@@ -216,8 +210,8 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
         #relabel and clean up columns
         names(clus_summary)[names(clus_summary) == "clus_ID3"]<- "clus_ID"
         names(out_all)[names(out_all) == "clus_ID3"]<- "clus_ID"
-        clus_summary$tag_local_identifier<-out_all$tag_local_identifier[1]
-        clus_summary<-moveMe(clus_summary, "tag_local_identifier", "first")
+        clus_summary$trackId<-out_all$trackId[1]
+        clus_summary<-moveMe(clus_summary, "trackId", "first")
         
         #############fin with cluster identification###################################
         ###################Build Cluster Attributes for modeling######################
@@ -287,9 +281,8 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
             clus_summary$night_prop[i]<-round(clus_summary$night_pts[i] / clus_summary$n_clus_locs[i],2)
             rm(dd, ttt)
           }
-          #tcltk::setTkProgressBar(pb3, i, title=paste("Animal",uni_individual.local.identifier[zz], "...building cluster covariates...", round(i/nrow(clus_summary)*100, 0), "% completed"))
+          
         }
-        #close(pb3)
         rm(ggg, fff, aa, i)
         ####END cluster prep####
       }
@@ -312,9 +305,9 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
       }
     }
     dat2<-rbind(dat2,out_all)   #append dat2 with out_all data
-    #utils::setTxtProgressBar(pb, zz)                         #update the base progress bar % for each animal
+    
   }
-  #close(pb)                                          #when finished close the base progress bar
+  
   dat<-dat2  #write the updated location output back to dat
   names(dat) <- make.names(names(dat2),allow_=FALSE)
   ###Converting the data.frame output into move-stack object
@@ -326,8 +319,25 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
   rm(dat2)
   clus_summary<-t_summ  #write the cluster summary info back to clus_summary
   rm(zz, uni_individual.local.identifier, out_all, t_summ)
+  
+  ###### Convert the data into sf objects for plotting
+  dat_sf <-st_as_sf(dat, coords=c("location.long", "location.lat"), crs=st_crs(4326))
+  dat_sf_line <-dat_sf %>% group_by (trackId) %>% 
+    summarise(do_union = FALSE) %>% st_cast("LINESTRING")
+  clust_sf <-st_as_sf(clus_summary, coords=c("g_c_location_long", "g_c_location_lat"), crs=st_crs(4326))
+  
+  ##### plotting the clusters and animal tracks
+  map_out_new <-  tm_shape(dat_sf_line)+
+    tm_graticules()+
+    tm_lines(col ="grey")+
+    tm_shape(clust_sf)+ tm_dots(col= "brown", scale=1.5)+
+    tm_scale_bar(position = c("left", "bottom"), width = 0.5) +
+    tm_compass(position = c("left", "top"), size = 4)
+ 
+  tmap_save(map_out_new, width=12, height = 8, units = "in", dpi=300, 
+            file= paste0(Sys.getenv(x = "APP_ARTIFACTS_DIR", "/tmp/"),"Cluster_locations_plot.jpeg"))
   write.csv(clus_summary, file= paste0(Sys.getenv(x = "APP_ARTIFACTS_DIR", "/tmp/"), "Cluster_summary_output.csv"),row.names=FALSE)
-  #write.csv(data_move, file= "Cluster_all_output.csv")
+  #write.csv(clus_summary, file=  "Cluster_summary_output.csv",row.names=FALSE)
   return(data_movestack)
 }
 
