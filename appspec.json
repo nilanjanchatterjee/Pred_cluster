@@ -3,7 +3,7 @@
 	{
       "id": "search_radius",
       "name": "Radius for cluster search",
-      "description": "Define the radius (in meter) for searching for GPS locations and cluster formation.",
+      "description": "Define the radius (in meters) for searching for GPS locations and cluster formation.",
       "defaultValue": 100,
       "type": "DOUBLE"
     },
@@ -17,7 +17,7 @@
    {
       "id": "clus_min_locs",
       "name": "Minimum location used for clustering",
-      "description": "Minimum lcoation to be used to differentiate between cluster and non-clusters (Den sites, resting lcoations). A higher minimum location for cluster ensures the animal has came back and spend some time in the cluster radius within the number of window days provided.",
+      "description": "Provide the minimum number of locations to be used to define a cluster. This can be used to differentiate between predation clusters and other sites (den sites, resting locations). A higher minimum location for cluster ensures the animal has come back and spent some time in the cluster radius within the number of window days provided.",
       "defaultValue": 5,
       "type": "DOUBLE"
     } 
@@ -80,7 +80,7 @@
   ],
   "funding": [
     {
-	"name": "NASA MoveApps Project"
+	"name": "NASA Ecological Forecasting Program Grant 80NSSC21K1182"
 	}
   ],
   "documentation" : {
