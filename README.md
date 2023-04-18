@@ -18,8 +18,24 @@ move/moveStack in Movebank format and optional threshold speed and window length
 move/moveStack in Movebank format
 
 ## Artefacts
-*Cluster_summary_output.csv*: csv with the individual id, cluster centroid location, time spent at the cluster and radius of the cluster
 
+*Cluster_summary_output.csv*: csv with followig columns
+
+- trackId	- Identification of the animal
+- clus_ID	- Unique cluster iedntification number
+- clus_start	-  Timestamp of the first location of the cluster
+- clus_end	- Timestamp of the Last location of the cluster
+- clus_status	- "Closed" if the time window (window_days) has expired for the cluster according to users Sys.time() output. These clusters therefore should not change if appending new location data.           "Open" if the time window remains open at the time the function was run. "Open" clusters have the ability to shift sequence, combine with other clusters, emerge as a new cluster, etc. This attribute becomes relevant when appending new satellite data to the location dataframe, and may serve as an index of whether an animal continues to actively visit the cluster site within the time window.
+- g_c_location_long	g_c_location_lat - Mean latitude/longitude of the cluster	
+- g_med_location_long	g_med_location_lat - Median latitude/longitude of the cluster		
+- clus_dur_hr	- Hours from the first to last locations of the cluster
+- n_clus_locs	- Number of locations within the cluster
+- visits - Number of visits/revisits to the cluster based on the number of times locations fall outside the search radius and return to add locations to the cluster
+- max_foray	- Maximum location distance (meters) from centroid during cluster duration for all locations.
+- clus_radius	- Maximum location distance (meters) from centroid during cluster duration for cluster-attributed locations.
+- avg_clus_dist	- Mean distance from all cluster locations to centroid
+- night_pts	- Number of night cluster locations at night
+- night_prop -  Proportion of cluster locations at night
 *Cluster_locations_plot.jpeg*: jpeg plot showing a map of the tracking data along with identified cluster locations
 
 ## Parameters
