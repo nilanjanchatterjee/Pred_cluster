@@ -314,7 +314,7 @@ rFunction <-function(data, search_radius, window_days, clus_min_locs, centroid_c
   data_move <- move(x=dat$location.long, y=dat$location.lat,
                     time=as.POSIXct(dat$timestamp,format="%Y-%m-%d %H:%M:%S"),
                     data=dat, proj=CRS("+proj=longlat +ellps=WGS84"),
-                    animal=dat$tag.local.identifier)
+                    animal=dat$trackId)
   data_movestack <- moveStack(data_move,forceTz="UTC")
   rm(dat2)
   clus_summary<-t_summ  #write the cluster summary info back to clus_summary
